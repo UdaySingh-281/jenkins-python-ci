@@ -1,27 +1,25 @@
-pipeline{
-    agent{
-        docker{
-            image 'python:3.9'
+pipeline {
+    agent {
+        docker {
+            image 'python:3.10'
         }
     }
 
-    stages{
-        stage('Clone'){
-            steps{
-                echo 'Cloning Code from repo....'
-                checkout scm
+    environment {
+        PIP_TARGET = './.venv-packages'
+        PYTHONPATH = './.venv-packages'
+    }
+
+    stages {
+        stage('Install Dependencies') {
+            steps {
+                sh 'pip install --no-cache-dir --target=$PIP_TARGET -r requirements.txt'
             }
         }
 
-        stage('Install dependencies'){
-            steps{
-                sh 'pip install --user -r requirements.txt || echo "No dependencies needed"'
-            }
-        }
-
-        stage('Run tests'){
-            steps{
-                sh 'python -m unittest discover.'
+        stage('Run Tests') {
+            steps {
+                sh 'python -m unittest discover .'
             }
         }
     }
